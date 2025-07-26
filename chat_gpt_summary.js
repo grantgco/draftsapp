@@ -18,6 +18,7 @@ let response = http.request({
 `You will be given unstructured text from a draft note. This may include a meeting transcript, voice memo transcription, a free-form brain dump, a list of tasks or notes, or a mix of all of these.
 
 Your job is to:
+- Extract a meaningful title and place at the top of the summary
 - Extract the key ideas, themes, and decisions
 - Identify any actionable items, responsible parties, and deadlines (if mentioned)
 - Summarize the core insights clearly and concisely
@@ -38,7 +39,7 @@ if (response.success) {
   let json = response.responseData;
   let summary = json.choices[0].message.content;
 
-  draft.content = "Summary:\n\n" + summary.trim() + "\n\n---\n\n" + content;
+  draft.content = summary.trim() + "\n\n---\n\n" + content;
   draft.update();
   editor.load(draft);
 } else {
