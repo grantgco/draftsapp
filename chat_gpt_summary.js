@@ -1,44 +1,59 @@
-let apiKey = "<<INSERT API KEY HERE>>";
+let apiKey = "<<INSERT CLAUDE API KEY HERE>>";
 let content = draft.content;
-
 let http = HTTP.create();
 let response = http.request({
-  url: "https://api.openai.com/v1/chat/completions",
+  url: "https://api.anthropic.com/v1/messages",
   method: "POST",
   headers: {
-    "Authorization": "Bearer " + apiKey,
-    "Content-Type": "application/json"
+    "x-api-key": apiKey,
+    "Content-Type": "application/json",
+    "anthropic-version": "2023-06-01"
   },
   data: {
-    model: "gpt-4o",
+    model: "claude-3-5-sonnet-20241022",
+    max_tokens: 4000,
     messages: [
       {
         role: "user",
-        content:
-`You will be given unstructured text from a draft note. This may include a meeting transcript, voice memo transcription, a free-form brain dump, a list of tasks or notes, or a mix of all of these.
+        content: 
+`You are an expert at transforming messy, unstructured notes into actionable insights. I'll give you raw content that might be a meeting transcript, voice memo, brain dump, task list, or mixture of these.
 
-Your job is to:
-- Extract a meaningful title and place at the top of the summary
-- Extract the key ideas, themes, and decisions
-- Identify any actionable items, responsible parties, and deadlines (if mentioned)
-- Summarize the core insights clearly and concisely
-- Use bullet points or short paragraphs for readability
-- Do not repeat the original content verbatim
+Please create a comprehensive summary with these sections:
 
-If the content is too vague or fragmented, still try to derive a useful and intelligent summary.
+**[MEANINGFUL TITLE]**
 
-Here is the content:
+**Key Insights & Decisions**
+- Identify the most important themes, conclusions, and decisions made
+- Look for underlying patterns or connections between ideas
+- Note any strategic implications or bigger-picture context
+
+**Action Items & Next Steps**
+- Extract specific tasks, deliverables, and commitments
+- Identify owners/responsible parties and deadlines where mentioned
+- Flag any dependencies or blockers
+- Suggest logical next steps if not explicitly stated
+
+**Questions & Considerations**
+- Surface any unresolved questions or areas needing clarification
+- Identify potential risks, challenges, or alternative approaches mentioned
+- Note any assumptions that should be validated
+
+**Context & Background**
+- Capture relevant background information and constraints
+- Note key stakeholders, resources, or external factors mentioned
+
+Focus on being genuinely helpful rather than just reorganizing information. If something seems important but unclear, acknowledge the ambiguity. If you spot logical gaps or missing considerations, briefly note them. Make this summary something I'd actually want to reference later.
+
+Raw content to analyze:
 ${content}`
       }
-    ],
-    temperature: 0.7
+    ]
   }
 });
 
 if (response.success) {
   let json = response.responseData;
-  let summary = json.choices[0].message.content;
-
+  let summary = json.content[0].text;
   draft.content = summary.trim() + "\n\n---\n\n" + content;
   draft.update();
   editor.load(draft);
