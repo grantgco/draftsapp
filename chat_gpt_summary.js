@@ -10,41 +10,44 @@ let response = http.request({
     "anthropic-version": "2023-06-01"
   },
   data: {
-    model: "claude-3-5-sonnet-20241022",
+    model: "claude-sonnet-4-20250514",
     max_tokens: 4000,
     messages: [
       {
         role: "user",
         content: 
-`You are an expert at transforming messy, unstructured notes into actionable insights. I'll give you raw content that might be a meeting transcript, voice memo, brain dump, task list, or mixture of these.
+`You are an expert at reformatting and organizing unstructured notes while preserving ALL original information. Your job is to take messy, scattered content and transform it into a clean, well-organized format without losing any details.
 
-Please create a comprehensive summary with these sections:
+Please reformat the content below with this structure:
 
-**[MEANINGFUL TITLE]**
+# [Create a Clear, Descriptive Title]
 
-**Key Insights & Decisions**
-- Identify the most important themes, conclusions, and decisions made
-- Look for underlying patterns or connections between ideas
-- Note any strategic implications or bigger-picture context
+## Overview
+Brief 1-2 sentence summary if the content warrants it
 
-**Action Items & Next Steps**
-- Extract specific tasks, deliverables, and commitments
-- Identify owners/responsible parties and deadlines where mentioned
-- Flag any dependencies or blockers
-- Suggest logical next steps if not explicitly stated
+## Main Content
+Organize all the original information into logical sections with clear headings. Preserve every detail, quote, number, name, and idea from the original - just present it in a cleaner, more readable format.
 
-**Questions & Considerations**
-- Surface any unresolved questions or areas needing clarification
-- Identify potential risks, challenges, or alternative approaches mentioned
-- Note any assumptions that should be validated
+Use appropriate subsections like:
+- **Key Points** 
+- **Action Items** (with any owners/deadlines mentioned)
+- **Decisions Made**
+- **Questions/Issues Raised**
+- **Next Steps**
+- **Background Info**
+- **People/Contacts Mentioned**
 
-**Context & Background**
-- Capture relevant background information and constraints
-- Note key stakeholders, resources, or external factors mentioned
+## Quick Reference
+If applicable, create a brief bulleted list of the most important items for easy scanning
 
-Focus on being genuinely helpful rather than just reorganizing information. If something seems important but unclear, acknowledge the ambiguity. If you spot logical gaps or missing considerations, briefly note them. Make this summary something I'd actually want to reference later.
+**Instructions:**
+- Keep ALL original information - don't summarize or condense details
+- Fix obvious typos or formatting issues
+- Organize related information together
+- Use clear headings and formatting for readability
+- If something is unclear in the original, keep it as-is but note [unclear] if helpful
 
-Raw content to analyze:
+Content to reformat:
 ${content}`
       }
     ]
@@ -54,7 +57,11 @@ ${content}`
 if (response.success) {
   let json = response.responseData;
   let summary = json.content[0].text;
+  // For testing: append original content below summary
+  // Comment out the next line once you're satisfied with the results
   draft.content = summary.trim() + "\n\n---\n\n" + content;
+  // Uncomment this line to keep only the summary:
+  // draft.content = summary.trim();
   draft.update();
   editor.load(draft);
 } else {
